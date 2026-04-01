@@ -1,0 +1,32 @@
+name: Cleanup Old Workflows and Artifacts
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install @octokit/rest
+
+      - name: Run cleanup
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_FULL: ${{ github.repository }}
+        run: node .github/scripts/cleanup.js
